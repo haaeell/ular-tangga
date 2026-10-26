@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { DEFAULT_CARDS, SETTINGS, KEY, TILES, beginGame, newGame, resolveLanding, finishMove, resolveCard, draw, validateCard, load, save } from './engine.js';
 
-assert.equal(DEFAULT_CARDS.length, 24);
+assert.equal(DEFAULT_CARDS.length, 32);
 assert.deepEqual(Object.values(TILES).flat().sort((a, b) => a - b), Array.from({ length: 36 }, (_, i) => i + 1));
 const opening = beginGame(['Suami', 'Istri'], DEFAULT_CARDS, SETTINGS);
 assert.equal(opening.phase, 'SHOW_CARD');

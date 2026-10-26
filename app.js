@@ -129,13 +129,11 @@ function render() {
   renderBoard();
   $('active-name').textContent = game.players[game.activePlayerIndex].name;
   $('legend-a').textContent = game.players[0].name; $('legend-b').textContent = game.players[1].name;
-  $('score').replaceChildren();
-  game.players.forEach((p, i) => { const row = document.createElement('p'); row.textContent = `${i ? '◆' : '●'} ${p.name} · kotak ${p.position}/36}${i === game.activePlayerIndex ? ' · giliran ini' : ''}`; row.className = i ? 'text-[#317d79] font-semibold' : 'text-[#5B223D] font-semibold'; $('score').append(row); });
-  $('points').textContent = `${game.lovePoints} ♥`; $('dice-last').textContent = game.lastDice ?? '—'; $('turns').textContent = game.turnCount;
+  $('position-a').textContent = game.players[0].position; $('position-b').textContent = game.players[1].position;
+  $('points').textContent = game.lovePoints; $('dice-last').textContent = game.lastDice ?? '—'; $('turns').textContent = game.turnCount;
   if (!busy && game.lastDice != null) { const [x, y] = diceAngles[game.lastDice]; $('dice').style.transform = `rotateX(${x}deg) rotateY(${y}deg)`; }
   $('event').textContent = game.history[0] || 'Lempar dadu untuk mulai.';
-  $('history').replaceChildren(); game.history.slice(0, 8).forEach(item => { const li = document.createElement('li'); li.textContent = item; $('history').append(li); });
-  for (const id of ['roll', 'roll-mobile']) $(id).disabled = busy || game.phase !== 'WAITING_ROLL';
+  for (const id of ['roll', 'roll-mobile-button']) $(id).disabled = busy || game.phase !== 'WAITING_ROLL';
 }
 function modalCard() {
   if (!game?.pendingCard) return;
@@ -248,7 +246,7 @@ $('start').onclick = () => {
   if (game && !confirmAction('Mulai permainan baru? Sesi sebelumnya akan diganti.')) return;
   readSettings('setup'); game = beginGame([a, b], cards(), data.settings); persist(); render(); show('game'); modalCard();
 };
-for (const id of ['roll', 'roll-mobile']) $(id).onclick = throwDice;
+for (const id of ['roll', 'roll-mobile-button']) $(id).onclick = throwDice;
 for (const [id, action] of [['card-done', 'done'], ['card-skip', 'skip'], ['card-replace', 'replace']]) $(id).onclick = () => cardAction(action);
 $('pause').onclick = $('card-pause').onclick = pause; $('resume').onclick = resume;
 $('end').onclick = () => { if (!confirmAction('Akhiri permainan ini? Sesi tidak dapat dilanjutkan.')) return; game = null; persist(); $('pause-dialog').close(); show('setup'); };
