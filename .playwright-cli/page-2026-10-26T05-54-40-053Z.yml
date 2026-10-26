@@ -1,0 +1,14 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]: ♥ LOVE & LADDER 21+
+    - generic [ref=e4]: Malam berdua, cerita tak terduga
+  - main [ref=e5]:
+    - generic [ref=e6]:
+      - paragraph [ref=e10]: Permainan privat untuk pasangan
+      - heading "Love & Ladder" [level=1] [ref=e11]
+      - paragraph [ref=e12]: Naik bersama, tertawa bersama. Satu papan, dua cerita, banyak momen kecil yang berarti.
+      - generic [ref=e13] [cursor=pointer]:
+        - checkbox "Kami berdua berusia 21 tahun ke atas dan setuju bermain secara sukarela. Kapan pun boleh melewati tantangan atau berhenti." [ref=e14]
+        - generic [ref=e15]: Kami berdua berusia 21 tahun ke atas dan setuju bermain secara sukarela. Kapan pun boleh melewati tantangan atau berhenti.
+      - button "Masuk & mulai" [disabled] [ref=e17]
+      - paragraph [ref=e18]: Data hanya tersimpan di browser perangkat ini. Tailwind CDN memerlukan internet.

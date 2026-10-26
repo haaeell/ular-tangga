@@ -1,0 +1,55 @@
+import assert from 'node:assert/strict';
+import { DEFAULT_CARDS, SETTINGS, KEY, TILES, beginGame, newGame, resolveLanding, finishMove, resolveCard, draw, validateCard, load, save } from './engine.js';
+
+assert.equal(DEFAULT_CARDS.length, 24);
+assert.deepEqual(Object.values(TILES).flat().sort((a, b) => a - b), Array.from({ length: 36 }, (_, i) => i + 1));
+const opening = beginGame(['Suami', 'Istri'], DEFAULT_CARDS, SETTINGS);
+assert.equal(opening.phase, 'SHOW_CARD');
+assert.equal(opening.lovePoints, 1);
+assert.equal(opening.turnCount, 0);
+assert.equal(resolveCard(opening, 'skip', DEFAULT_CARDS, SETTINGS).activePlayerIndex, 0);
+assert.equal(resolveCard(opening, 'skip', DEFAULT_CARDS, SETTINGS).phase, 'WAITING_ROLL');
+assert.deepEqual(resolveLanding(1, 2), { landing: 3, final: 12 });
+assert.deepEqual(resolveLanding(17, 2), { landing: 19, final: 7 });
+assert.deepEqual(resolveLanding(34, 5), { landing: 36, final: 36 });
+let game = newGame();
+game = finishMove(game, 3, 4, DEFAULT_CARDS, SETTINGS);
+assert.equal(game.phase, 'SHOW_CARD');
+assert.equal(game.lovePoints, 1);
+const first = game.pendingCard.id;
+game = resolveCard(game, 'replace', DEFAULT_CARDS, SETTINGS);
+assert.notEqual(game.pendingCard.id, first);
+game = resolveCard(game, 'skip', DEFAULT_CARDS, SETTINGS);
+assert.equal(game.lovePoints, 1);
+assert.equal(game.activePlayerIndex, 1);
+assert.equal(game.phase, 'WAITING_ROLL');
+assert.equal(finishMove(game, 5, 6, DEFAULT_CARDS, SETTINGS).lovePoints, 3);
+let win = newGame();
+win.players[0].position = 34;
+win = finishMove(win, 5, 36, DEFAULT_CARDS, SETTINGS);
+assert.equal(win.phase, 'SHOW_CARD');
+assert.equal(win.winnerId, 'husband');
+assert.equal(win.turnCount, 1);
+assert.equal(win.lovePoints, 2);
+win = resolveCard(win, 'skip', DEFAULT_CARDS, SETTINGS);
+assert.equal(win.phase, 'FINISHED');
+assert.equal(win.activePlayerIndex, 0);
+const disabled = DEFAULT_CARDS.map(c => ({ ...c, isActive: false }));
+assert.equal(draw(newGame(), 'intimate', disabled, SETTINGS).id, 'fallback-romantic');
+assert.equal(finishMove(newGame(), 1, 2, disabled, SETTINGS).phase, 'SHOW_CARD');
+for (let position = 2; position < 36; position++) {
+  const state = newGame(); state.players[0].position = position - 1;
+  // Petak pangkal/kepala memindahkan pion lebih dulu; kotak akhirnya tetap berkartu.
+  const target = resolveLanding(position - 1, 1).final;
+  assert.equal(finishMove(state, 1, target, DEFAULT_CARDS, SETTINGS).phase, 'SHOW_CARD');
+}
+assert.throws(() => validateCard({ category: 'invalid', title: 'x', description: 'y' }));
+const memory = new Map();
+globalThis.localStorage = { getItem: key => memory.get(key) ?? null, setItem: (key, value) => memory.set(key, value) };
+assert.equal(save({ settings: SETTINGS, customCards: [], gameState: game }), true);
+assert.equal(load().gameState.activePlayerIndex, 1);
+memory.set(KEY, '{invalid');
+assert.equal(load(), null);
+memory.set(KEY, JSON.stringify({ version: 1, settings: SETTINGS, customCards: [], gameState: null }));
+assert.equal(load().gameState, null);
+console.log('Engine: semua pemeriksaan lulus.');

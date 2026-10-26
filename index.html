@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#5B223D">
+  <title>Love & Ladder 21+</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root { color-scheme: light; --wine:#5B223D; --rose:#D76D8B; --blush:#F7E5EB; --champagne:#EAD8BF; --ink:#30212B; }
+    body { background: radial-gradient(circle at 80% 0%, #fff8f5, transparent 35%), linear-gradient(140deg,#f9eced,#f7e5eb 65%,#efe1d5); color:var(--ink); min-height:100dvh; font-family: ui-sans-serif, system-ui, sans-serif; }
+    .display { font-family: Georgia, 'Times New Roman', serif; }
+    .panel { background:#fffdfbe8; border:1px solid #fff; border-radius:1.5rem; box-shadow:0 18px 50px #5b223d12; }
+    .button { display:inline-flex; align-items:center; justify-content:center; min-height:44px; border-radius:999px; padding:.7rem 1.25rem; font-weight:700; transition:transform .2s,background .2s; }
+    .button:hover { transform:translateY(-2px); } .button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline:3px solid #d76d8b; outline-offset:2px; }
+    .primary { color:white; background:var(--wine); } .primary:hover { background:#77334f; } .secondary { color:var(--wine); background:var(--blush); } .outline { color:var(--wine); border:1px solid #b88a9d; }
+    .field { width:100%; min-height:44px; border:1px solid #d8bdc7; background:white; border-radius:.85rem; padding:.65rem .85rem; }
+    .tile { position:relative; aspect-ratio:1; min-width:0; border:1px solid #ffffff99; border-radius:.75rem; display:flex; flex-direction:column; justify-content:space-between; padding:clamp(2px,1vw,9px); overflow:hidden; }
+    .tile-number { font-weight:800; font-size:clamp(.68rem,2vw,1rem); line-height:1; } .tile-icon { width:clamp(17px,3.5vw,32px); height:clamp(17px,3.5vw,32px); align-self:flex-end; color:#753550; }
+    .tile[data-tile="3"] .tile-icon,.tile[data-tile="8"] .tile-icon,.tile[data-tile="20"] .tile-icon { color:#28694a; }
+    .tile[data-tile="19"] .tile-icon,.tile[data-tile="27"] .tile-icon,.tile[data-tile="32"] .tile-icon { color:#a23e61; }
+    .tile[data-tile="36"] .tile-icon { color:#fff; }
+    .tile.occupied { box-shadow:inset 0 0 0 3px #753550,0 3px 10px #5b223d55; z-index:2; }
+    .tile.active-tile { box-shadow:inset 0 0 0 4px #a63161,0 0 0 3px #fff7e8,0 0 22px 5px #d76d8baa; z-index:4; }
+    .tile.active-tile.occupied-together { box-shadow:inset 0 0 0 4px #a63161,0 0 0 3px #317d79,0 0 22px 5px #d76d8baa; }
+    .token { width:clamp(24px,6vw,38px); height:clamp(24px,6vw,38px); display:grid; place-items:center; border-radius:50%; color:#fff5eb; box-shadow:0 3px 8px #30212b80,inset 0 0 0 2px #ffffff99; border:2px solid #f7ddae; flex-shrink:0; }
+    .token svg { width:85%; height:85%; }
+    .token-a { background:linear-gradient(140deg,#8c4460,#40152d); } .token-b { background:linear-gradient(140deg,#449e95,#205852); } .tokens { position:absolute; bottom:2px; left:2px; display:flex; z-index:2; }
+    .tokens:has(.token + .token) .token { width:clamp(18px,4.4vw,29px); height:clamp(18px,4.4vw,29px); }
+    .token-hop { animation:hop .17s ease-out; } @keyframes hop { 50% { transform:translateY(-12px) scale(1.15); } }
+    .token-transfer { animation:transfer .42s ease-in-out; } @keyframes transfer { 50% { transform:translateY(-18px) rotate(25deg) scale(1.3); filter:drop-shadow(0 0 12px #e4b65d); } }
+    #game:fullscreen,#game.fullscreen-fallback { background:radial-gradient(circle at 70% 0%,#fff5f2,#f7e5eb 70%); padding:clamp(12px,2vw,30px); overflow:auto; height:100dvh; width:100vw; max-width:none; }
+    #game.fullscreen-fallback { position:fixed; inset:0; z-index:20; }
+    #game:fullscreen #board-wrap,#game.fullscreen-fallback #board-wrap { max-width:min(70vh,800px); }
+    .dice-stage { position:relative; perspective:520px; height:160px; display:grid; place-items:center; overflow:visible; }
+    .dice-stage::before { content:''; position:absolute; width:110px; height:23px; border-radius:50%; background:#5b223d55; filter:blur(13px); transform:translate(14px,65px); pointer-events:none; }
+    .dice-tilt { transform-style:preserve-3d; transform:rotateX(0deg) rotateY(0deg); transition:transform .45s ease-out; }
+    .dice-tilt.rolling { transform:rotateX(-18deg) rotateY(-23deg); }
+    .dice-bounce { transform-style:preserve-3d; }
+    .dice-bounce.rolling { animation:dice-bounce 1.25s cubic-bezier(.25,.6,.3,1) both; }
+    @keyframes dice-bounce { 0% { transform:translateY(8px) scale(.9); } 28% { transform:translateY(-38px) scale(1.1); } 63% { transform:translateY(-12px); } 82% { transform:translateY(6px) scale(.94); } 100% { transform:translateY(0) scale(1); } }
+    .dice { position:relative; width:88px; height:88px; transform-style:preserve-3d; transform:rotateX(0deg) rotateY(0deg); }
+    .dice-face { position:absolute; inset:0; display:grid; grid-template:repeat(3,1fr)/repeat(3,1fr); padding:13px; border-radius:16px; background:linear-gradient(140deg,#fffefb 8%,#fae7e8 58%,#e6bdca); border:3px solid #b77f96; box-shadow:inset -9px -9px 14px #8c4f6740,inset 5px 5px 10px #fff,0 0 1px 1px #fff; backface-visibility:hidden; }
+    .dice-face b { width:13px; height:13px; border-radius:50%; background:radial-gradient(circle at 70% 70%,#a24b6c,#572239 70%); box-shadow:inset 2px 2px 3px #391b2a99,0 1px 1px #fff; align-self:center; justify-self:center; }
+    .dice-face[data-face="1"] { transform:translateZ(44px); }
+    .dice-face[data-face="2"] { transform:rotateY(90deg) translateZ(44px); }
+    .dice-face[data-face="3"] { transform:rotateX(90deg) translateZ(44px); }
+    .dice-face[data-face="4"] { transform:rotateX(-90deg) translateZ(44px); }
+    .dice-face[data-face="5"] { transform:rotateY(-90deg) translateZ(44px); }
+    .dice-face[data-face="6"] { transform:rotateY(180deg) translateZ(44px); }
+    .dice-face[data-face="2"],.dice-face[data-face="5"] { background:linear-gradient(145deg,#f8e0e5,#d7a9bb); }
+    .dice-face[data-face="3"],.dice-face[data-face="4"] { background:linear-gradient(145deg,#fff9f4,#e2baca); }
+    dialog { border:0; border-radius:1.5rem; padding:0; box-shadow:0 30px 90px #30132488; max-height:calc(100dvh - 2rem); overflow:auto; width:min(92vw,490px); color:var(--ink); }
+    dialog::backdrop { background:#27151fb8; backdrop-filter:blur(4px); }
+    .card-enter { animation:reveal .55s cubic-bezier(.2,.8,.2,1); } @keyframes reveal { from { transform:translateY(22px) scale(.95); opacity:0; filter:blur(6px); } to { transform:translateY(0) scale(1); opacity:1; filter:blur(0); } }
+    .tile-glow { animation:glow .7s ease-out; } @keyframes glow { 40% { box-shadow:inset 0 0 0 4px #d76d8b,0 0 24px 9px #d76d8b88; transform:scale(1.06); z-index:3; } }
+    .card-scene { position:relative; display:grid; place-items:center; height:145px; border-radius:1.2rem; background:radial-gradient(circle at 50% 95%,#bb687f88,transparent 62%),linear-gradient(145deg,#452038,#79516a); overflow:hidden; }
+    .card-scene::before { content:''; position:absolute; width:110px; height:110px; border-radius:50%; background:#f8dbbb; filter:blur(8px); box-shadow:0 0 45px #f5cea2aa; top:-62px; right:10%; }
+    .scene-art { width:200px; height:140px; color:#f6d4c7; z-index:1; filter:drop-shadow(0 5px 8px #2e142777); }
+    .board-link { filter:drop-shadow(0 1px 2px #30212b88); }
+    .card-scene[data-category="flirty"] { background:radial-gradient(circle at 50% 95%,#e3959a99,transparent 62%),linear-gradient(145deg,#653047,#ac6579); }
+    .card-scene[data-category="intimate"] { background:radial-gradient(circle at 50% 95%,#936785aa,transparent 62%),linear-gradient(145deg,#2a1833,#61445e); }
+    .card-scene[data-category="surprise"] { background:radial-gradient(circle at 50% 95%,#e4ae7899,transparent 62%),linear-gradient(145deg,#60404c,#a47969); }
+    @media (prefers-reduced-motion:reduce) { *, *::before, *::after { animation-duration:.01ms!important; scroll-behavior:auto!important; transition-duration:.01ms!important; } }
+  </style>
+</head>
+<body>
+  <svg xmlns="http://www.w3.org/2000/svg" class="absolute w-0 h-0 overflow-hidden" aria-hidden="true" focusable="false">
+    <symbol id="icon-rose" viewBox="0 0 40 40"><path d="M20 21c-9-5-9-14-2-15 2-4 9-3 10 2 7 2 6 11-2 14-4 2-8 1-10-3 4 2 9-1 8-5-2-3-7-1-7 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M21 22c0 8-4 12-6 16m5-9c-7-4-9-2-10-2 3 5 6 6 9 5m2-3c4-5 7-5 9-5-1 5-4 8-9 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-candle" viewBox="0 0 40 40"><path d="M20 4c4 4 4 8 0 11-4-2-4-6 0-11Z" fill="currentColor"/><path d="M20 14v4M12 19h16v16H12zM9 36h22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-moon" viewBox="0 0 40 40"><path d="M29 30A15 15 0 0 1 17 5 15 15 0 1 0 35 24 15 15 0 0 1 29 30Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m28 7 1 3 3 1-3 1-1 3-1-3-3-1 3-1z" fill="currentColor"/></symbol>
+    <symbol id="icon-gift" viewBox="0 0 40 40"><path d="M7 18h26v17H7zM5 13h30v5H5zm15 0v22M20 13C9 13 9 3 16 5c4 1 4 8 4 8Zm0 0c11 0 11-10 4-8-4 1-4 8-4 8Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="icon-couple" viewBox="0 0 200 140"><path d="M15 133c4-30 12-46 43-50l19 17 21-16c13 1 24 6 31 16l18-16c28 3 39 19 43 49H15Z" fill="currentColor" opacity=".85"/><path d="M46 41c-2-15 7-26 21-26s22 12 20 26c-1 14-9 25-20 25S48 55 46 41Zm63 0c-2-15 7-26 21-26s22 12 20 26c-1 14-9 25-20 25s-19-11-21-25Z" fill="currentColor"/><path d="M66 17c2 8 10 9 21 10m23 2c9-1 15-6 20-13 4 7 11 10 20 12" fill="none" stroke="#5b324e" stroke-width="5" stroke-linecap="round"/><path d="M89 72c10 7 22 7 32 0" fill="none" stroke="#f6d4c7" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="icon-kiss" viewBox="0 0 200 140"><path d="M10 137c2-37 18-52 58-53 13 13 24 17 32 18 9-1 20-5 32-18 37 2 53 20 58 53Z" fill="currentColor" opacity=".85"/><path d="M55 24c16-16 37-10 46 4 7 11 8 18 1 27l-7 6-3 17c-14 10-35 0-42-18-7-15-4-28 5-36Zm89 0c-16-16-37-10-46 4-7 11-8 18-1 27l7 6 3 17c14 10 35 0 42-18 7-15 4-28-5-36Z" fill="currentColor"/><path d="M52 43c5-20 18-25 38-24m58 24c-5-20-18-25-38-24" fill="none" stroke="#5b324e" stroke-width="8" stroke-linecap="round"/><path d="M95 57q5 6 10 0" fill="none" stroke="#5b324e" stroke-width="2"/></symbol>
+    <symbol id="icon-husband" viewBox="0 0 40 40"><path d="M4 40c1-10 5-14 13-15l3 5 3-5c8 1 12 5 13 15Z" fill="currentColor"/><path d="m17 25 3 5 3-5-3-2Z" fill="#e6bc79"/><rect x="11" y="9" width="18" height="17" rx="9" fill="#e6bc79"/><path d="M10 15c-1-9 4-12 11-12 9 0 12 6 9 13-2-4-5-5-8-6-3 3-7 4-12 5Z" fill="#27192c"/><path d="M14 21q6 6 12 0" fill="none" stroke="#763947" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    <symbol id="icon-wife" viewBox="0 0 40 40"><path d="M7 14C7 1 33 1 33 14l3 20H4Z" fill="#231d32"/><path d="M3 40c1-10 6-15 17-15s16 5 17 15Z" fill="currentColor"/><path d="m20 28-5 5 5 4 5-4Z" fill="#e6bc79"/><ellipse cx="20" cy="17" rx="9" ry="11" fill="#e6bc79"/><path d="M10 15c0-12 16-15 21-3-6 1-12 0-15-3-1 3-3 5-6 6Z" fill="#231d32"/><path d="M16 22q4 4 8 0" fill="none" stroke="#763947" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    <symbol id="icon-ladder" viewBox="0 0 40 40"><path d="M8 37 15 3M25 37l7-34M10 28h17M12 19h17M14 10h16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></symbol>
+    <symbol id="icon-snake" viewBox="0 0 40 40"><path d="M7 34c-4-8 5-12 11-8 13 9 23 0 16-8-4-5-17 3-19-6-2-7 7-11 14-7" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><circle cx="29" cy="5" r="4" fill="currentColor"/><circle cx="30" cy="4" r="1" fill="white"/><path d="m32 7 5 2-4 2" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+  </svg>
+  <header class="max-w-6xl mx-auto px-5 py-5 flex justify-between items-center gap-3">
+    <div class="font-bold tracking-widest text-sm text-[#5B223D]">♥ &nbsp; LOVE & LADDER <span class="text-[#D76D8B]">21+</span></div>
+    <span class="text-xs text-[#765966] hidden sm:block">Malam berdua, cerita tak terduga</span>
+  </header>
+  <main class="max-w-6xl mx-auto px-4 pb-28 md:pb-12">
+    <section id="welcome" class="panel max-w-2xl mx-auto mt-8 md:mt-16 p-7 md:p-12 text-center">
+      <div class="card-scene mb-6" aria-hidden="true"><svg class="scene-art"><use href="#icon-couple"></use></svg></div>
+      <p class="uppercase tracking-[.35em] text-xs font-bold text-[#a45170] mb-3">Permainan privat untuk pasangan</p>
+      <h1 class="display text-5xl md:text-6xl text-[#5B223D] mb-5">Love <i>&</i> Ladder</h1>
+      <p class="text-lg leading-relaxed text-[#705967] mb-7">Naik bersama, tertawa bersama. Satu papan, dua cerita, banyak momen kecil yang berarti.</p>
+      <label class="flex text-left gap-3 bg-[#F7E5EB] p-4 rounded-xl mb-6 cursor-pointer"><input id="consent" type="checkbox" class="accent-[#5B223D] w-5 h-5 shrink-0 mt-1"><span>Kami berdua berusia 21 tahun ke atas dan setuju bermain secara sukarela. Kapan pun boleh melewati tantangan atau berhenti.</span></label>
+      <div class="flex flex-wrap justify-center gap-3"><button id="enter" class="button primary" disabled>Masuk & mulai</button><button id="continue" class="button secondary hidden" disabled>Lanjutkan sesi</button></div>
+      <p class="text-xs text-[#806a76] mt-6">Data hanya tersimpan di browser perangkat ini. Tailwind CDN memerlukan internet.</p>
+    </section>
+
+    <section id="setup" class="hidden max-w-3xl mx-auto mt-4">
+      <div class="text-center mb-7"><p class="text-xs tracking-[.3em] uppercase text-[#a45170] font-bold">Sebelum bermain</p><h1 class="display text-4xl md:text-5xl text-[#5B223D] mt-2">Siapkan malam kalian</h1></div>
+      <div class="panel p-6 md:p-9 space-y-6">
+        <div class="grid sm:grid-cols-2 gap-4"><label class="font-semibold">Nama pemain pertama<input id="name-a" class="field mt-2" maxlength="30" value="Suami" required></label><label class="font-semibold">Nama pemain kedua<input id="name-b" class="field mt-2" maxlength="30" value="Istri" required></label></div>
+        <div class="rounded-xl bg-[#F7E5EB] p-4 text-sm"><b>Malam berdua 21+</b> · 36 kotak, semuanya berkartu · Setiap kartu boleh diganti atau dilewati</div>
+        <div class="grid sm:grid-cols-2 gap-3"><label class="flex gap-3 items-center"><input id="custom-enabled" type="checkbox" checked class="w-5 h-5 accent-[#5B223D]"> Aktifkan kartu custom</label><label class="flex gap-3 items-center"><input id="sound" type="checkbox" class="w-5 h-5 accent-[#5B223D]"> Efek suara</label></div>
+        <label class="block font-semibold">Hadiah akhir (opsional)<input id="reward" class="field mt-2" maxlength="100" placeholder="Misalnya: memilih kencan berikutnya"></label>
+        <div class="flex flex-wrap gap-3"><button id="start" class="button primary flex-1">Mulai bermain ♥</button><button id="edit-cards" class="button secondary">Kelola kartu</button><button id="rules" class="button outline">Cara bermain</button></div>
+        <button id="clear-setup" class="text-sm underline text-[#805a68] min-h-11">Hapus semua data di perangkat ini</button>
+      </div>
+    </section>
+
+    <section id="game" class="hidden">
+      <div class="flex items-center justify-between gap-3 mb-5"><div><p class="uppercase tracking-[.22em] text-xs font-bold text-[#a45170]">Papan permainan · 36 kotak</p><h1 class="display text-3xl md:text-4xl text-[#5B223D]">Giliran <span id="active-name"></span></h1></div><div class="flex flex-wrap justify-end gap-2"><button id="fullscreen" class="button outline" aria-pressed="false">⛶ Layar penuh</button><button id="pause" class="button outline">Jeda</button></div></div>
+      <div class="grid lg:grid-cols-[minmax(0,1.3fr)_minmax(270px,.7fr)] gap-5 items-start">
+        <div class="panel p-2 sm:p-5"><div id="board-wrap" class="relative max-w-[650px] mx-auto"><div id="board" class="grid grid-cols-6 gap-1 sm:gap-2" aria-label="Papan ular tangga 36 kotak"></div><svg id="links" class="absolute inset-0 w-full h-full pointer-events-none" aria-hidden="true"></svg></div><div class="flex flex-wrap gap-4 justify-center text-xs sm:text-sm mt-5"><span>🪜 Tangga</span><span>🐍 Ular</span><span class="inline-flex items-center gap-1"><svg class="w-5 h-5 text-[#5b223d]" aria-hidden="true"><use href="#icon-husband"></use></svg><b id="legend-a">Suami</b></span><span class="inline-flex items-center gap-1 text-[#317d79]"><svg class="w-5 h-5" aria-hidden="true"><use href="#icon-wife"></use></svg><b id="legend-b">Istri</b></span></div></div>
+        <div class="space-y-4"><div class="panel p-5"><p class="uppercase text-xs tracking-[.2em] font-bold text-[#a45170]">Perjalanan kalian</p><div id="score" class="mt-4 space-y-2"></div><div class="mt-4 rounded-xl bg-[#F7E5EB] p-4"><p class="text-sm">Love Points bersama</p><p id="points" class="display text-4xl text-[#5B223D]">0 ♥</p></div></div>
+          <div class="panel p-5"><p class="text-sm font-semibold text-[#805a68]">Dadu terakhir: <span id="dice-last">—</span> · Giliran: <span id="turns">0</span></p><div class="dice-stage" aria-hidden="true"><div class="dice-tilt"><div id="dice-bounce" class="dice-bounce"><div id="dice" class="dice"><span class="dice-face" data-face="1"></span><span class="dice-face" data-face="2"></span><span class="dice-face" data-face="3"></span><span class="dice-face" data-face="4"></span><span class="dice-face" data-face="5"></span><span class="dice-face" data-face="6"></span></div></div></div></div><p id="event" class="mt-3 text-sm" aria-live="polite">Lempar dadu untuk mulai.</p><button id="roll" class="button primary w-full mt-4 text-lg hidden lg:inline-flex">⚄ &nbsp; Lempar Dadu</button></div>
+          <div class="panel p-5"><h2 class="font-bold mb-2">Jejak cerita</h2><ol id="history" class="text-sm space-y-2 text-[#705967] max-h-40 overflow-y-auto"></ol></div>
+        </div>
+      </div>
+      <div class="lg:hidden fixed bottom-0 inset-x-0 bg-white/95 border-t border-[#ead8bf] p-3 pb-[max(.75rem,env(safe-area-inset-bottom))] z-10"><button id="roll-mobile" class="button primary w-full">⚄ &nbsp; Lempar Dadu</button></div>
+    </section>
+
+    <section id="result" class="hidden panel max-w-xl mx-auto text-center mt-12 p-8 md:p-12"><p class="text-5xl mb-4" aria-hidden="true">♥</p><p class="uppercase tracking-[.2em] text-xs text-[#a45170]">Permainan selesai</p><h1 class="display text-4xl md:text-5xl text-[#5B223D] mt-3">Selamat, <span id="winner"></span>!</h1><p class="mt-4">Kalian sudah melangkah bersama sampai akhir.</p><p id="summary" class="mt-6 bg-[#F7E5EB] p-4 rounded-xl"></p><p id="prize" class="mt-3"></p><div class="flex flex-wrap gap-3 justify-center mt-8"><button id="again" class="button primary">Main lagi</button><button id="back-setup" class="button secondary">Ubah pengaturan</button></div></section>
+  </main>
+
+  <dialog id="card-dialog" aria-labelledby="card-title"><div id="card-content" class="p-7 md:p-9 card-enter"><div class="card-scene mb-5" id="card-scene" aria-hidden="true"><svg class="scene-art"><use id="scene-use" href="#icon-couple"></use></svg></div><div class="flex justify-between gap-2"><p id="card-category" class="uppercase tracking-[.2em] text-xs font-bold text-[#a45170]"></p><button id="card-pause" class="underline text-sm min-h-11">Jeda</button></div><h2 id="card-title" class="display text-3xl text-[#5B223D] mt-4"></h2><p id="card-description" class="text-lg leading-relaxed my-6"></p><p id="card-player" class="text-sm text-[#805a68]"></p><p class="text-xs mt-4 text-[#805a68]">Hanya lakukan jika kalian berdua nyaman. Lewati kapan saja.</p><div class="flex flex-wrap gap-2 mt-7"><button id="card-done" class="button primary flex-1">Selesai</button><button id="card-replace" class="button secondary">Ganti kartu</button><button id="card-skip" class="button outline">Lewati</button></div></div></dialog>
+  <dialog id="pause-dialog" aria-labelledby="pause-title"><div class="p-7 space-y-4"><h2 id="pause-title" class="display text-3xl text-[#5B223D]">Ambil jeda</h2><p>Tidak perlu terburu-buru. Lanjutkan kapan pun kalian siap.</p><label class="flex gap-3 items-center"><input id="pause-sound" type="checkbox" class="w-5 h-5 accent-[#5B223D]"> Efek suara</label><label class="flex gap-3 items-center"><input id="pause-custom" type="checkbox" class="w-5 h-5 accent-[#5B223D]"> Aktifkan kartu custom</label><div class="flex flex-wrap gap-2"><button id="resume" class="button primary">Lanjutkan</button><button id="pause-edit" class="button secondary">Kelola kartu</button><button id="end" class="button outline">Akhiri game</button></div><button id="clear-pause" class="text-sm underline min-h-11">Hapus semua data</button></div></dialog>
+  <dialog id="editor-dialog" aria-labelledby="editor-title"><div class="p-6"><div class="flex justify-between items-center"><h2 id="editor-title" class="display text-3xl text-[#5B223D]">Kartu kalian</h2><button id="editor-close" class="button secondary" aria-label="Tutup editor">✕</button></div><p class="text-sm mt-3 text-[#805a68]">Kartu pribadi hanya tersimpan di browser perangkat ini.</p><div class="flex gap-2 mt-4"><input id="card-search" class="field" placeholder="Cari judul" aria-label="Cari judul kartu"><select id="card-filter" class="field !w-auto" aria-label="Filter kategori"><option value="all">Semua</option><option value="romantic">Romantis</option><option value="flirty">Genit</option><option value="intimate">Intim</option><option value="surprise">Kejutan</option></select></div><div id="card-list" class="max-h-48 overflow-auto space-y-2 mt-4"></div><button id="reset-defaults" class="text-sm underline min-h-11">Aktifkan kembali semua kartu bawaan</button><form id="card-form" class="border-t border-[#ead8bf] pt-4 space-y-3"><h3 id="form-heading" class="font-bold">Tambah kartu pribadi</h3><input id="card-id" type="hidden"><label class="block">Kategori<select id="card-type" class="field mt-1"><option value="romantic">Romantis</option><option value="flirty">Genit</option><option value="intimate">Intim</option><option value="surprise">Kejutan</option></select></label><label class="block">Judul<input id="card-name" class="field mt-1" maxlength="60" required></label><label class="block">Deskripsi<textarea id="card-text" class="field mt-1" rows="2" maxlength="300" required></textarea></label><p id="form-error" class="text-sm text-red-700" role="alert"></p><div class="flex gap-2"><button class="button primary" type="submit">Simpan kartu</button><button id="form-cancel" class="button secondary" type="button">Batal edit</button></div></form></div></dialog>
+  <dialog id="rules-dialog" aria-labelledby="rules-title"><div class="p-7"><h2 id="rules-title" class="display text-3xl text-[#5B223D]">Cara bermain</h2><ol class="list-decimal pl-5 space-y-3 mt-5"><li>Mulai dari kotak 1 dengan kartu pembuka, lalu bergantian lempar dadu.</li><li>Tangga menaikkan pion; ular menurunkannya. Hanya satu perpindahan per lemparan.</li><li>Setiap kotak membuka kartu acak sesuai kategorinya setelah perpindahan. Selesaikan, ganti, atau lewati tanpa penalti.</li><li>Love Points bertambah saat membuka kartu, bukan saat menyelesaikan tantangan.</li><li>Yang pertama mencapai kotak 36 menang setelah kartu penutup, termasuk jika angka dadu melebihi 36.</li></ol><button id="rules-close" class="button primary mt-6">Mengerti</button></div></dialog>
+  <p id="notice" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-[#5B223D] text-white rounded-xl px-5 py-3 shadow-xl hidden" role="status"></p>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
