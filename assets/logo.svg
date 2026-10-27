@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">Ular Tangga Cinta</title>
+  <desc id="desc">Hati dengan ular kecil dan tangga emas.</desc>
+  <defs>
+    <linearGradient id="night" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#8f4968"/>
+      <stop offset=".52" stop-color="#5b223d"/>
+      <stop offset="1" stop-color="#321629"/>
+    </linearGradient>
+    <linearGradient id="heart" x1="0" y1="0" x2=".8" y2="1">
+      <stop stop-color="#fff5e9"/>
+      <stop offset="1" stop-color="#efb9cc"/>
+    </linearGradient>
+    <linearGradient id="snake" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#d77d99"/>
+      <stop offset="1" stop-color="#9c3d64"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#fff1c6"/>
+      <stop offset="1" stop-color="#d3a76a"/>
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="124" height="124" rx="29" fill="url(#night)"/>
+  <rect x="6" y="6" width="116" height="116" rx="25" fill="none" stroke="#fff6e3" stroke-opacity=".42" stroke-width="2"/>
+  <path d="M64 107C43 94 20 74 20 50c0-16 12-28 27-28 8 0 14 4 17 11 4-7 11-11 19-11 15 0 26 12 26 28 0 24-24 44-45 57Z" fill="url(#heart)"/>
+  <path d="M52 82c-15-1-23-12-18-23 4-8 14-9 23-4 10 6 21 4 24-5" fill="none" stroke="#762e50" stroke-width="13" stroke-linecap="round"/>
+  <path d="M52 82c-15-1-23-12-18-23 4-8 14-9 23-4 10 6 21 4 24-5" fill="none" stroke="url(#snake)" stroke-width="9" stroke-linecap="round"/>
+  <path d="M48 81c-12-2-18-12-13-21" fill="none" stroke="#f4b8c9" stroke-width="2" stroke-linecap="round" stroke-dasharray="2 7"/>
+  <ellipse cx="81" cy="48" rx="11" ry="8" transform="rotate(-18 81 48)" fill="#b95779" stroke="#762e50" stroke-width="2"/>
+  <circle cx="83" cy="44" r="2" fill="#fff8ea"/>
+  <circle cx="83.5" cy="44" r=".9" fill="#3a1b2e"/>
+  <path d="m91 48 7-2-4 4" fill="none" stroke="#c13d67" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M66 92 85 65M76 98 96 69" fill="none" stroke="#65452f" stroke-width="7" stroke-linecap="round"/>
+  <path d="M66 92 85 65M76 98 96 69" fill="none" stroke="url(#gold)" stroke-width="4" stroke-linecap="round"/>
+  <path d="m71 85 10 5m-5-12 10 5m-5-12 10 5" fill="none" stroke="#74513a" stroke-width="5" stroke-linecap="round"/>
+  <path d="m71 85 10 5m-5-12 10 5m-5-12 10 5" fill="none" stroke="#ffe8ae" stroke-width="3" stroke-linecap="round"/>
+  <path d="m37 36 1.5 4.5L43 42l-4.5 1.5L37 48l-1.5-4.5L31 42l4.5-1.5Z" fill="#fff4d7"/>
+</svg>

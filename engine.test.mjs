@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { DEFAULT_CARDS, SETTINGS, KEY, TILES, beginGame, newGame, resolveLanding, finishMove, resolveCard, draw, validateCard, load, save } from './engine.js';
+import { DEFAULT_CARDS, SETTINGS, KEY, TILES, LADDERS, SNAKES, beginGame, newGame, resolveLanding, finishMove, resolveCard, draw, validateCard, load, save } from './engine.js';
 
 assert.equal(DEFAULT_CARDS.length, 32);
 assert.deepEqual(Object.values(TILES).flat().sort((a, b) => a - b), Array.from({ length: 36 }, (_, i) => i + 1));
@@ -11,6 +11,11 @@ assert.equal(resolveCard(opening, 'skip', DEFAULT_CARDS, SETTINGS).activePlayerI
 assert.equal(resolveCard(opening, 'skip', DEFAULT_CARDS, SETTINGS).phase, 'WAITING_ROLL');
 assert.deepEqual(resolveLanding(1, 2), { landing: 3, final: 12 });
 assert.deepEqual(resolveLanding(17, 2), { landing: 19, final: 7 });
+assert.deepEqual(resolveLanding(12, 2), { landing: 14, final: 23 });
+assert.deepEqual(resolveLanding(22, 2), { landing: 24, final: 11 });
+assert.deepEqual(resolveLanding(33, 2), { landing: 35, final: 26 });
+assert.equal(Object.keys(LADDERS).length, 4);
+assert.equal(Object.keys(SNAKES).length, 5);
 assert.deepEqual(resolveLanding(34, 5), { landing: 36, final: 36 });
 let game = newGame();
 game = finishMove(game, 3, 4, DEFAULT_CARDS, SETTINGS);
@@ -52,4 +57,7 @@ memory.set(KEY, '{invalid');
 assert.equal(load(), null);
 memory.set(KEY, JSON.stringify({ version: 1, settings: SETTINGS, customCards: [], gameState: null }));
 assert.equal(load().gameState, null);
+memory.set(KEY, JSON.stringify({ version: 1, settings: { sound: false, customCardsEnabled: true, disabledDefaults: [] }, customCards: [], gameState: null }));
+assert.equal(load().settings.music, true);
+assert.equal(load().settings.sound, false);
 console.log('Engine: semua pemeriksaan lulus.');

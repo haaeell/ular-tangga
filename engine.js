@@ -1,7 +1,7 @@
 export const CATEGORIES = ['romantic', 'flirty', 'intimate', 'surprise'];
 export const LABELS = { romantic: 'Romantis', flirty: 'Genit', intimate: 'Intim', surprise: 'Kejutan' };
-export const LADDERS = { 3: 12, 8: 17, 20: 30 };
-export const SNAKES = { 19: 7, 27: 13, 32: 21 };
+export const LADDERS = { 3: 12, 8: 17, 14: 23, 20: 30 };
+export const SNAKES = { 19: 7, 24: 11, 27: 13, 32: 21, 35: 26 };
 export const TILES = { romantic: [1, 3, 4, 9, 12, 16, 20, 23, 29, 34], flirty: [2, 5, 8, 11, 18, 21, 25, 31], intimate: [7, 10, 15, 17, 22, 27, 28, 32, 33], surprise: [6, 13, 14, 19, 24, 26, 30, 35, 36] };
 
 const CONTENT = {
@@ -51,7 +51,7 @@ const CONTENT = {
 };
 
 export const DEFAULT_CARDS = Object.entries(CONTENT).flatMap(([category, cards]) => cards.map(([title, description], i) => ({ id: `${category}-${i}`, category, title, description, isActive: true, isCustom: false })));
-export const SETTINGS = { boardSize: 36, customCardsEnabled: true, sound: false, reward: '', disabledDefaults: [] };
+export const SETTINGS = { boardSize: 36, customCardsEnabled: true, music: true, sound: true, fullscreenTipSeen: false, reward: '', disabledDefaults: [] };
 export const KEY = 'love_ladder_v1';
 
 export function newGame(names = ['Suami', 'Istri']) {

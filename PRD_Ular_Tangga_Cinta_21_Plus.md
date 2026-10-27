@@ -1,4 +1,4 @@
-# PRD — Love & Ladder 21+
+# PRD — Ular Tangga Cinta 21+
 
 **Versi:** 1.0 (pra-coding)  
 **Platform:** web responsif, satu perangkat, dua pemain  
@@ -7,7 +7,7 @@
 
 ## 1. Ringkasan produk
 
-**Love & Ladder 21+** adalah permainan ular tangga privat untuk pasangan suami istri dewasa, dimainkan bergantian dari satu HP/laptop. Papan 6×6 berisi 36 kotak. Pemain melempar dadu, menggerakkan pion, menemukan tangga/ular, dan membuka kartu berisi tantangan romantis, flirty, intim non-eksplisit, atau kejutan.
+**Ular Tangga Cinta 21+** adalah permainan ular tangga privat untuk pasangan suami istri dewasa, dimainkan bergantian dari satu HP/laptop. Papan 6×6 berisi 36 kotak. Pemain melempar dadu, menggerakkan pion, menemukan tangga/ular, dan membuka kartu berisi tantangan romantis, flirty, intim non-eksplisit, atau kejutan.
 
 **Konfigurasi awal:** pemain `Suami` dan `Istri`, mode `Campuran`, 36 kotak, kartu custom **aktif**.
 
@@ -269,7 +269,7 @@ Simpan di satu key: `love_ladder_v1`.
 ## 11. Struktur folder project
 
 ```text
-love-and-ladder/
+ular-tangga-cinta/
 ├── index.html                 # Semua screen / root UI
 ├── manifest.webmanifest       # Opsional: instalasi PWA
 ├── sw.js                      # Opsional: cache offline setelah build
